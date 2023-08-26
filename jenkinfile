@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    
+    tools {
+        terraform 'terraform'
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Lordcarter/terraform-project-2.git']])
+            }
+        }
+        
+         stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+        
+           stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan -var-file environment/dev.tfvars'
+            }
+        }
+        
+           stage('Terraform Apply') {
+            steps {
+                sh 'terraform apply -var-file environment/dev.tfvars --auto-approve'
+            }
+        }
+        
+           stage('Sleep') {
+            steps {
+                sh 'sleep 120'
+            }
+        }
+        
+           stage('Terraform Destroy') {
+            steps {
+                sh 'terraform destroy -var-file environment/dev.tfvars --auto-approve'
+            }
+        }
+    }
+}
